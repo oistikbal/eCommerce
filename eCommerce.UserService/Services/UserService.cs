@@ -2,7 +2,6 @@
 using eCommerce.UserService.Data.Repositories;
 using eCommerce.UserService.Protos;
 using Grpc.Core;
-using Microsoft.Extensions.Logging;
 
 namespace eCommerce.UserService.Services
 {
@@ -17,27 +16,31 @@ namespace eCommerce.UserService.Services
             _logger = logger;
         }
 
-        public override Task<UserResponse> RegisterUser(RegisterUserRequest request, ServerCallContext context)
+        public override async Task<UserResponse> RegisterUser(RegisterUserRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Registering user: {Username}", request.Username);
-
             var user = new User
             {
                 Username = request.Username,
-                Password = request.Password, // Şifreyi burada düz bırakıyoruz, ancak hashlenmeli
+                Password = request.Password,
                 Email = request.Email
             };
 
-            var createdUser = _userRepository.CreateUserAsync(user).Result;
-
-            var response = new UserResponse
+            try
             {
-                Id = createdUser.Id,
-                Username = createdUser.Username,
-                Email = createdUser.Email
-            };
+                var createdUser = await _userRepository.CreateUserAsync(user);
+                var response = new UserResponse
+                {
+                    Id = createdUser.Id,
+                    Username = createdUser.Username,
+                    Email = createdUser.Email
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+            }
 
-            return Task.FromResult(response);
         }
     }
 }
