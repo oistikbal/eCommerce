@@ -1,16 +1,15 @@
 ﻿using eCommerce.UserService.Data;
 using eCommerce.UserService.Protos;
 using Grpc.Net.Client;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace eCommerce.UserService.Tests.Service
+namespace eCommerce.UserService.Tests.Integration
 {
-    public class UserIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+    public class UserIntegrationTests : IClassFixture<UserServiceFixture>
     {
         private readonly GrpcChannel _channel;
 
-        public UserIntegrationTests(WebApplicationFactory<Program> factory)
+        public UserIntegrationTests(UserServiceFixture factory)
         {
             var client = factory.CreateClient();
             _channel = GrpcChannel.ForAddress(factory.Server.BaseAddress, new GrpcChannelOptions
@@ -18,10 +17,8 @@ namespace eCommerce.UserService.Tests.Service
                 HttpClient = client
             });
 
-            using var scope = factory.Services.CreateScope();
+            var scope = factory.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-            dbContext.Database.EnsureCreated(); // Test için yeni DB oluştur
         }
 
         [Fact]
@@ -33,7 +30,7 @@ namespace eCommerce.UserService.Tests.Service
             {
                 Username = "testuser",
                 Email = "testuser@example.com",
-                Password = "password123"
+                Password = "Password123*"
             };
 
             var response = await client.RegisterUserAsync(user);
