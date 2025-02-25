@@ -2,17 +2,18 @@
 using eCommerce.UserService.Data.Repositories;
 using eCommerce.UserService.Protos;
 using Grpc.Core;
+using Microsoft.AspNetCore.Identity;
 
 namespace eCommerce.UserService.Services
 {
     public class UserService : Protos.UserService.UserServiceBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository userRepository, ILogger<UserService> logger)
+        public UserService(UserManager<User> userManager, ILogger<UserService> logger)
         {
-            _userRepository = userRepository;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -20,27 +21,24 @@ namespace eCommerce.UserService.Services
         {
             var user = new User
             {
-                Username = request.Username,
-                Password = request.Password,
+                UserName = request.Username,
                 Email = request.Email
             };
 
-            try
+
+            var result = await _userManager.CreateAsync(user, request.Password);
+            if (!result.Succeeded)
             {
-                var createdUser = await _userRepository.CreateUserAsync(user);
-                var response = new UserResponse
-                {
-                    Id = createdUser.Id,
-                    Username = createdUser.Username,
-                    Email = createdUser.Email
-                };
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+                _logger.LogError("User creation failed: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+                throw new RpcException(new Status(StatusCode.Internal, "User creation failed"));
             }
 
+            return new UserResponse
+            {
+                Id = user.Id,
+                Username = user.UserName,
+                Email = user.Email
+            };
         }
     }
 }

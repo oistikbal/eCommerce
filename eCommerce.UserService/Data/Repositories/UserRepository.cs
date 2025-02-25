@@ -6,7 +6,7 @@ namespace eCommerce.UserService.Data.Repositories
     public interface IUserRepository
     {
         Task<User> CreateUserAsync(User user);
-        Task<User> GetUserByIdAsync(int id);
+        Task<User> GetUserByIdAsync(string id);
         Task<User> GetUserByUsernameAsync(string username);
         Task<List<User>> GetAllUsersAsync();
     }
@@ -27,14 +27,14 @@ namespace eCommerce.UserService.Data.Repositories
             return user;
         }
 
-        public async Task<User> GetUserByIdAsync(int id)
+        public async Task<User> GetUserByIdAsync(string id)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<User> GetUserByUsernameAsync(string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            return await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
         }
 
         public async Task<List<User>> GetAllUsersAsync()
