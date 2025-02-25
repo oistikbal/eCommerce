@@ -16,6 +16,7 @@ builder.Services.AddIdentity<User, IdentityRole>()
         .AddDefaultTokenProviders();
 
 
+
 builder.Services.AddGrpc();
 builder.Services.AddReverseProxy()
         .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
