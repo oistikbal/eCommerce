@@ -13,7 +13,7 @@ namespace eCommerce.UserService.Tests
 
         public UserServiceFixture()
         {
-            _dbName = $"TestDb_{Guid.NewGuid().ToString("N")}.db";
+            _dbName = $"TestDb_{Guid.NewGuid().ToString("N")}.sqlite";
         }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)

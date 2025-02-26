@@ -1,5 +1,4 @@
 ﻿using eCommerce.UserService.Data.Models;
-using eCommerce.UserService.Data.Repositories;
 using eCommerce.UserService.Protos;
 using Grpc.Core;
 using Microsoft.AspNetCore.Identity;
