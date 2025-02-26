@@ -23,7 +23,18 @@ message RegisterUserResponse {
     repeated string errors = 2;
 }
 
+message ChangePasswordRequest {
+  string current_password = 1;
+  string new_password = 2;
+}
+
+message ChangePasswordResponse {
+  bool success = 1;
+  repeated string errors = 2;
+}
+
 service AuthService {
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
   rpc Login (LoginRequest) returns (LoginResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
 }

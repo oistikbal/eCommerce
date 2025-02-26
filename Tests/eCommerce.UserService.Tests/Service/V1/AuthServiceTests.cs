@@ -1,7 +1,7 @@
 ﻿using Bogus;
-using eCommerce.UserService.Data.Models;
 using eCommerce.UserService.Protos.V1;
-using eCommerce.UserService.Services.V1;
+using Grpc.AspNetCore.ClientFactory;
+using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace eCommerce.UserService.Tests.Service.V1
@@ -19,30 +19,51 @@ namespace eCommerce.UserService.Tests.Service.V1
             _registerUserFaker = new Faker<RegisterUserRequest>()
                 .RuleFor(u => u.Username, f => f.Internet.UserName())
                 .RuleFor(u => u.Email, f => f.Internet.Email())
-                .RuleFor(u => u.Password, f => f.Internet.Password());
+                .RuleFor(u => u.Password, f => f.Internet.Password(length: 20, memorable: false, prefix: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d]).{6,}$"));
         }
 
         [Fact]
         public async Task RegisterUser_ValidRequest_ReturnsSucces()
         {
+            var user = _registerUserFaker.Generate();
+
             var request = new RegisterUserRequest
             {
-                Username = "testuser",
-                Password = "Password123*",
-                Email = "test@example.com"
-            };
-
-            var createdUser = new User
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserName = request.Username,
-                Email = request.Email
+                Username = user.Username,
+                Password = user.Password,
+                Email = user.Email
             };
 
             var response = await _service.RegisterUser(request, null);
 
             Assert.NotNull(response);
             Assert.Empty(response.Errors);
+        }
+
+        [Fact]
+        public async Task LoginUser_ValidRequest_ReturnsSucces()
+        {
+            var user = _registerUserFaker.Generate();
+
+            var request = new RegisterUserRequest
+            {
+                Username = user.Username,
+                Password = user.Password,
+                Email = user.Email
+            };
+
+            var response = await _service.RegisterUser(request, null);
+
+            var loginRequest = new LoginRequest()
+            {
+                Email = request.Email,
+                Password = request.Password
+            };
+
+            var loginResponse = await _service.Login(loginRequest, null);
+
+            Assert.NotNull(response);
+            Assert.True(response.Success);
         }
     }
 }

@@ -33,8 +33,12 @@ if (string.IsNullOrEmpty(secretKey) || string.IsNullOrEmpty(issuer) || string.Is
 
 builder.Services.AddSingleton(new JwtHelper(secretKey, issuer, audience));
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -48,12 +52,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthentication();
-
 builder.Services.AddGrpc();
 
 var app = builder.Build();
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapGrpcService<AuthService>();
 app.MapGrpcService<UserService>();
 
