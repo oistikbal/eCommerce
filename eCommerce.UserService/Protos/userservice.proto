@@ -4,6 +4,16 @@ option csharp_namespace = "eCommerce.UserService.Protos";
 
 package userservice;
 
+message HealthCheckRequest 
+{
+}
+
+message HealthCheckResponse
+{
+     string status = 1;
+     string version = 2;
+}
+
 message RegisterUserRequest {
     string username = 1;
     string password = 2;
@@ -18,4 +28,5 @@ message UserResponse {
 
 service UserService {
     rpc RegisterUser(RegisterUserRequest) returns (UserResponse);
+    rpc CheckHealth (HealthCheckRequest) returns (HealthCheckResponse);
 }

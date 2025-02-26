@@ -40,5 +40,16 @@ namespace eCommerce.UserService.Services
                 Email = user.Email
             };
         }
+
+        public override Task<HealthCheckResponse> CheckHealth(HealthCheckRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation("Health check requested.");
+
+            return Task.FromResult(new HealthCheckResponse
+            {
+                Status = "OK",
+                Version = "1.0"
+            });
+        }
     }
 }
