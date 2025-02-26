@@ -21,7 +21,7 @@ namespace eCommerce.UserService.Tests
         {
             builder.ConfigureTestServices(services =>
             {
-                services.AddScoped<UserServiceV1>();
+                services.AddScoped<AuthService>();
 
                 services.AddDbContext<ApplicationDbContext>(options =>
                 {

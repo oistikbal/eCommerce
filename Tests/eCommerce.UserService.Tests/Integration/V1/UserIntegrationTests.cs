@@ -22,9 +22,9 @@ namespace eCommerce.UserService.Tests.Integration.V1
         }
 
         [Fact]
-        public async Task CreateUser_ShouldReturnUser()
+        public async Task CreateUser_ShouldSucces()
         {
-            var client = new Protos.V1.UserService.UserServiceClient(_channel);
+            var client = new Protos.V1.AuthService.AuthServiceClient(_channel);
 
             var user = new RegisterUserRequest
             {
@@ -36,8 +36,7 @@ namespace eCommerce.UserService.Tests.Integration.V1
             var response = await client.RegisterUserAsync(user);
 
             Assert.NotNull(response);
-            Assert.Equal(user.Username, response.Username);
-            Assert.Equal(user.Email, response.Email);
+            Assert.Empty(response.Errors);
         }
 
     }
