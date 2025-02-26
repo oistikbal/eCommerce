@@ -1,15 +1,15 @@
 ﻿using eCommerce.UserService.Data;
-using eCommerce.UserService.Protos;
+using eCommerce.UserService.Protos.V1;
 using Grpc.Net.Client;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace eCommerce.UserService.Tests.Integration
+namespace eCommerce.UserService.Tests.Integration.V1
 {
-    public class UserIntegrationTests : IClassFixture<UserServiceFixture>
+    public class UserIntegrationV1Tests : IClassFixture<UserServiceFixture>
     {
         private readonly GrpcChannel _channel;
 
-        public UserIntegrationTests(UserServiceFixture factory)
+        public UserIntegrationV1Tests(UserServiceFixture factory)
         {
             var client = factory.CreateClient();
             _channel = GrpcChannel.ForAddress(factory.Server.BaseAddress, new GrpcChannelOptions
@@ -24,7 +24,7 @@ namespace eCommerce.UserService.Tests.Integration
         [Fact]
         public async Task CreateUser_ShouldReturnUser()
         {
-            var client = new UserService.Protos.UserService.UserServiceClient(_channel);
+            var client = new Protos.V1.UserService.UserServiceClient(_channel);
 
             var user = new RegisterUserRequest
             {

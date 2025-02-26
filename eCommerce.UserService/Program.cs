@@ -1,6 +1,6 @@
 using eCommerce.UserService.Data;
 using eCommerce.UserService.Data.Models;
-using eCommerce.UserService.Services;
+using eCommerce.UserService.Services.V1;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ builder.Services.AddIdentity<User, IdentityRole>()
 builder.Services.AddGrpc();
 var app = builder.Build();
 
-app.MapGrpcService<UserService>();
+app.MapGrpcService<UserServiceV1>();
 app.Run();
 
 public partial class Program { }

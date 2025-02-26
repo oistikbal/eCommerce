@@ -1,19 +1,22 @@
-﻿using eCommerce.UserService.Data.Models;
-using eCommerce.UserService.Protos;
+﻿using eCommerce.UserService.Data;
+using eCommerce.UserService.Data.Models;
+using eCommerce.UserService.Protos.V1;
 using Grpc.Core;
 using Microsoft.AspNetCore.Identity;
 
-namespace eCommerce.UserService.Services
+namespace eCommerce.UserService.Services.V1
 {
-    public class UserService : Protos.UserService.UserServiceBase
+    public class UserServiceV1 : Protos.V1.UserService.UserServiceBase
     {
+        private readonly ApplicationDbContext _applicationDbContext;
         private readonly UserManager<User> _userManager;
-        private readonly ILogger<UserService> _logger;
+        private readonly ILogger<UserServiceV1> _logger;
 
-        public UserService(UserManager<User> userManager, ILogger<UserService> logger)
+        public UserServiceV1(UserManager<User> userManager, ILogger<UserServiceV1> logger, ApplicationDbContext applicationDbContext)
         {
             _userManager = userManager;
             _logger = logger;
+            _applicationDbContext = applicationDbContext;
         }
 
         public override async Task<UserResponse> RegisterUser(RegisterUserRequest request, ServerCallContext context)
@@ -24,13 +27,14 @@ namespace eCommerce.UserService.Services
                 Email = request.Email
             };
 
-
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
             {
                 _logger.LogError("User creation failed: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
                 throw new RpcException(new Status(StatusCode.Internal, "User creation failed"));
             }
+
+            await _applicationDbContext.SaveChangesAsync();
 
             return new UserResponse
             {
@@ -47,7 +51,7 @@ namespace eCommerce.UserService.Services
             return Task.FromResult(new HealthCheckResponse
             {
                 Status = "OK",
-                Version = "1.0"
+                Version = "v1.0"
             });
         }
     }

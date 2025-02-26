@@ -1,4 +1,5 @@
 ﻿using eCommerce.UserService.Data;
+using eCommerce.UserService.Services.V1;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -20,7 +21,7 @@ namespace eCommerce.UserService.Tests
         {
             builder.ConfigureTestServices(services =>
             {
-                services.AddScoped<UserService.Services.UserService>();
+                services.AddScoped<UserServiceV1>();
 
                 services.AddDbContext<ApplicationDbContext>(options =>
                 {

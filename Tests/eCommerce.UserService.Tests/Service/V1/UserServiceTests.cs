@@ -1,17 +1,18 @@
 ﻿using eCommerce.UserService.Data.Models;
-using eCommerce.UserService.Protos;
+using eCommerce.UserService.Protos.V1;
+using eCommerce.UserService.Services.V1;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace eCommerce.UserService.Tests.Service
+namespace eCommerce.UserService.Tests.Service.V1
 {
-    public class UserServiceTests : IClassFixture<UserServiceFixture>
+    public class UserServiceV1Tests : IClassFixture<UserServiceFixture>
     {
-        private readonly UserService.Services.UserService _service;
+        private readonly UserServiceV1 _service;
 
-        public UserServiceTests(UserServiceFixture factory)
+        public UserServiceV1Tests(UserServiceFixture factory)
         {
             var scope = factory.Services.CreateScope();
-            _service = scope.ServiceProvider.GetRequiredService<UserService.Services.UserService>();
+            _service = scope.ServiceProvider.GetRequiredService<UserServiceV1>();
         }
 
         [Fact]
