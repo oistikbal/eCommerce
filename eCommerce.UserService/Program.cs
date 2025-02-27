@@ -53,8 +53,17 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddGrpc();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 var app = builder.Build();
+
+var supportedCultures = new[] { "en-US", "tr-TR"};
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture("en-US")
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapGrpcService<AuthService>();

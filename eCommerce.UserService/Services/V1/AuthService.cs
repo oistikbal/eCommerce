@@ -5,6 +5,7 @@ using eCommerce.UserService.Protos.V1;
 using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Localization;
 
 namespace eCommerce.UserService.Services.V1
 {
@@ -12,11 +13,13 @@ namespace eCommerce.UserService.Services.V1
     {
         private readonly UserManager<User> _userManager;
         private readonly JwtHelper _jwtHelper;
+        private readonly IStringLocalizer<AuthService> _localizer;
 
-        public AuthService(UserManager<User> userManager, JwtHelper jwtHelper)
+        public AuthService(UserManager<User> userManager, JwtHelper jwtHelper, IStringLocalizer<AuthService> localizer)
         {
             _userManager = userManager;
             _jwtHelper = jwtHelper;
+            _localizer = localizer;
         }
 
         public override async Task<RegisterUserResponse> RegisterUser(RegisterUserRequest request, ServerCallContext context)
@@ -64,7 +67,7 @@ namespace eCommerce.UserService.Services.V1
                 return new ChangePasswordResponse
                 {
                     Success = false,
-                    Errors = { "Unauthorized: Invalid or missing token." }
+                    Errors = { _localizer["InvalidToken"] }
                 };
             }
 
@@ -74,7 +77,7 @@ namespace eCommerce.UserService.Services.V1
                 return new ChangePasswordResponse
                 {
                     Success = false,
-                    Errors = { "User not found." }
+                    Errors = { _localizer["UserNotFound"] }
                 };
             }
 
@@ -105,20 +108,20 @@ namespace eCommerce.UserService.Services.V1
 
             if (string.IsNullOrEmpty(userId))
             {
-                return new ChangeEmailResponse { Success = false, Errors = { "Unauthorized: Invalid or missing token." } };
+                return new ChangeEmailResponse { Success = false, Errors = { _localizer["InvalidToken"] } };
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return new ChangeEmailResponse { Success = false, Errors = { "User not found." } };
+                return new ChangeEmailResponse { Success = false, Errors = { _localizer["UserNotFound"] } };
             }
 
             // Verify password before changing email
             var passwordCheck = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!passwordCheck)
             {
-                return new ChangeEmailResponse { Success = false, Errors = { "Invalid password." } };
+                return new ChangeEmailResponse { Success = false, Errors = { _localizer["InvalidPassword"] } };
             }
 
             // Change email
