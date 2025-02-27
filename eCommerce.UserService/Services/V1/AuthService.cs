@@ -44,11 +44,11 @@ namespace eCommerce.UserService.Services.V1
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null || !(await _userManager.CheckPasswordAsync(user, request.Password)))
             {
-                throw new RpcException(new Status(StatusCode.Unauthenticated, "Invalid credentials"));
+                return new LoginResponse { Success = false, Token = string.Empty };
             }
 
             var token = _jwtHelper.GenerateToken(user);
-            return new LoginResponse { Token = token };
+            return new LoginResponse { Success = true, Token = token };
         }
 
         [Authorize]
@@ -88,6 +88,8 @@ namespace eCommerce.UserService.Services.V1
                 };
 
                 response.Errors.AddRange(result.Errors.Select(e => e.Description));
+
+                return response;
             }
 
             return new ChangePasswordResponse { Success = true };
