@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using eCommerce.UserService.Data.Models;
 using eCommerce.UserService.Protos.V1;
 using Grpc.Core;
@@ -53,7 +54,10 @@ namespace eCommerce.UserService.Services.V1
         [Authorize]
         public override async Task<ChangePasswordResponse> ChangePassword(ChangePasswordRequest request, ServerCallContext context)
         {
-            var userId = context.GetHttpContext().User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var token = context.RequestHeaders.GetValue("Authorization")?.Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userId))
             {
@@ -89,6 +93,47 @@ namespace eCommerce.UserService.Services.V1
             return new ChangePasswordResponse { Success = true };
         }
 
+        [Authorize]
+        public override async Task<ChangeEmailResponse> ChangeEmail(ChangeEmailRequest request, ServerCallContext context)
+        {
+            var token = context.RequestHeaders.GetValue("Authorization")?.Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                return new ChangeEmailResponse { Success = false, Errors = { "Unauthorized: Invalid or missing token." } };
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return new ChangeEmailResponse { Success = false, Errors = { "User not found." } };
+            }
+
+            // Verify password before changing email
+            var passwordCheck = await _userManager.CheckPasswordAsync(user, request.Password);
+            if (!passwordCheck)
+            {
+                return new ChangeEmailResponse { Success = false, Errors = { "Invalid password." } };
+            }
+
+            // Change email
+            var result = await _userManager.SetEmailAsync(user, request.NewEmail);
+            if (!result.Succeeded)
+            {
+                var response = new ChangeEmailResponse
+                {
+                    Success = false,
+                };
+
+                response.Errors.AddRange(result.Errors.Select(e => e.Description));
+
+                return response;
+            }
+
+            return new ChangeEmailResponse { Success = true };
+        }
     }
 }
