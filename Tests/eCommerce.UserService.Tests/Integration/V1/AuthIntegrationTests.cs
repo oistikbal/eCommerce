@@ -86,5 +86,46 @@ namespace eCommerce.UserService.Tests.Integration.V1
             Assert.Empty(changePasswordResponse.Errors);
         }
 
+        [Fact]
+        public async Task ChangeEmail_ShouldSucces()
+        {
+            var client = new Protos.V1.AuthService.AuthServiceClient(_channel);
+
+            var user = _registerUserFaker.Generate();
+
+            var request = new RegisterUserRequest
+            {
+                Username = user.Username,
+                Password = user.Password,
+                Email = user.Email
+            };
+
+            var response = await client.RegisterUserAsync(user);
+
+            var loginRequest = new LoginRequest()
+            {
+                Email = request.Email,
+                Password = request.Password
+            };
+
+
+            var loginResponse = await client.LoginAsync(loginRequest);
+
+            var header = new Metadata
+            {
+                { "Authorization", $"Bearer {loginResponse.Token}" }
+            };
+
+            var changeEmailRequest = new ChangeEmailRequest
+            {
+                Password = request.Password,
+                NewEmail = _registerUserFaker.Generate().Email
+            };
+
+            var changeEmailResponse = await client.ChangeEmailAsync(changeEmailRequest, headers: header);
+
+            Assert.Empty(changeEmailResponse.Errors);
+        }
+
     }
 }

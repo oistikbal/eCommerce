@@ -1,8 +1,11 @@
-﻿using Bogus;
+﻿using System.Threading.Channels;
+using Bogus;
 using eCommerce.UserService.Protos.V1;
 using Grpc.AspNetCore.ClientFactory;
 using Grpc.Core;
+using Grpc.Core.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 
 namespace eCommerce.UserService.Tests.Service.V1
 {
@@ -64,6 +67,113 @@ namespace eCommerce.UserService.Tests.Service.V1
 
             Assert.NotNull(response);
             Assert.True(response.Success);
+        }
+
+        [Fact]
+        public async Task ChangePassword_ShouldSucces()
+        {
+            var user = _registerUserFaker.Generate();
+
+            var request = new RegisterUserRequest
+            {
+                Username = user.Username,
+                Password = user.Password,
+                Email = user.Email
+            };
+
+            var response = await _service.RegisterUser(user, null);
+
+            var loginRequest = new LoginRequest()
+            {
+                Email = request.Email,
+                Password = request.Password
+            };
+
+
+            var loginResponse = await _service.Login(loginRequest,null);
+
+            var header = new Metadata
+            {
+                { "Authorization", $"Bearer {loginResponse.Token}" }
+            };
+
+            var changePasswordRequest = new ChangePasswordRequest
+            {
+                CurrentPassword = request.Password,
+                NewPassword = _registerUserFaker.Generate().Password
+            };
+
+            var context = TestServerCallContext.Create(
+                method: "ChangePassword",
+                host: "localhost",                           
+                deadline: DateTime.UtcNow.AddMinutes(30),    
+                requestHeaders: header,         
+                cancellationToken: CancellationToken.None,   
+                peer: "ipv4:127.0.0.1:5000",                 
+                authContext: null,                           
+                contextPropagationToken: null,
+                writeHeadersFunc: (metadata) => Task.CompletedTask,
+                writeOptionsGetter: () => null,
+                writeOptionsSetter: (options) => { }
+            );
+
+            var changePasswordResponse = await _service.ChangePassword(changePasswordRequest, context);
+
+            Assert.Empty(changePasswordResponse.Errors);
+        }
+
+        [Fact]
+        public async Task ChangeEmail_ShouldSucces()
+        {
+
+            var user = _registerUserFaker.Generate();
+
+            var request = new RegisterUserRequest
+            {
+                Username = user.Username,
+                Password = user.Password,
+                Email = user.Email
+            };
+
+            var response = await _service.RegisterUser(user,null);
+
+            var loginRequest = new LoginRequest()
+            {
+                Email = request.Email,
+                Password = request.Password
+            };
+
+
+            var loginResponse = await _service.Login(loginRequest,null);
+
+            var header = new Metadata
+            {
+                { "Authorization", $"Bearer {loginResponse.Token}" }
+            };
+
+            var changeEmailRequest = new ChangeEmailRequest
+            {
+                Password = request.Password,
+                NewEmail = _registerUserFaker.Generate().Email
+            };
+
+            var context = TestServerCallContext.Create(
+                method: "ChangeEmail",
+                host: "localhost",
+                deadline: DateTime.UtcNow.AddMinutes(30),
+                requestHeaders: header,
+                cancellationToken: CancellationToken.None,
+                peer: "ipv4:127.0.0.1:5000",
+                authContext: null,
+                contextPropagationToken: null,
+                writeHeadersFunc: (metadata) => Task.CompletedTask,
+                writeOptionsGetter: () => null,
+                writeOptionsSetter: (options) => { }
+            );
+
+            var changeEmailResponse = await _service.ChangeEmail(changeEmailRequest, context);
+
+            Assert.Empty(changeEmailResponse.Errors);
         }
     }
 }
