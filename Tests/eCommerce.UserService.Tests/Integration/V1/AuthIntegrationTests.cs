@@ -26,7 +26,7 @@ namespace eCommerce.UserService.Tests.Integration.V1
         }
 
         [Fact]
-        public async Task CreateUser_ShouldSucces()
+        public async Task CreateUser_WhenRequestIsValid_ShouldSucces()
         {
             var client = new Protos.V1.AuthService.AuthServiceClient(_channel);
 
@@ -46,7 +46,7 @@ namespace eCommerce.UserService.Tests.Integration.V1
         }
 
         [Fact]
-        public async Task ChangePassword_ShouldSucces()
+        public async Task ChangePassword_WhenRequestIsValid_ShouldSucces()
         {
             var client = new Protos.V1.AuthService.AuthServiceClient(_channel);
 
@@ -87,7 +87,7 @@ namespace eCommerce.UserService.Tests.Integration.V1
         }
 
         [Fact]
-        public async Task ChangeEmail_ShouldSucces()
+        public async Task ChangeEmail_WhenRequestIsValid_ShouldSucces()
         {
             var client = new Protos.V1.AuthService.AuthServiceClient(_channel);
 

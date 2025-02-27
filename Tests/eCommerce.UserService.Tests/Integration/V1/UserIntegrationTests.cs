@@ -17,7 +17,7 @@ namespace eCommerce.UserService.Tests.Integration.V1
         }
 
         [Fact]
-        public async Task CheckHealth_ShouldReturnTrue()
+        public async Task CheckHealth_WhenRequestIsValid_ShouldSuccess()
         {
             var client = new Protos.V1.UserService.UserServiceClient(_channel);
 

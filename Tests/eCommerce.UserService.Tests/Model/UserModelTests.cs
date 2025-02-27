@@ -27,7 +27,7 @@ namespace eCommerce.UserService.Tests.Model
         }
 
         [Fact]
-        public async Task CreateUser_ShouldSucceed()
+        public async Task CreateUser_WhenRequestIsValid_ShouldSuccess()
         {
             var user = _fakeUser.Generate();
             var result = await _userManager.CreateAsync(user, "StrongP@ssword123");
@@ -35,7 +35,7 @@ namespace eCommerce.UserService.Tests.Model
         }
 
         [Fact]
-        public async Task GetUserByUsernameAsync_ShouldReturnUser()
+        public async Task GetUserByUsernameAsync_WhenRequestIsValid_ShouldSuccess()
         {
             var user = _fakeUser.Generate();
             await _userManager.CreateAsync(user, "StrongP@ssword123");
@@ -45,7 +45,7 @@ namespace eCommerce.UserService.Tests.Model
         }
 
         [Fact]
-        public async Task GetUserByEmailAsync_ShouldReturnUser()
+        public async Task GetUserByEmailAsync_WhenRequestIsValid_ShouldSuccess()
         {
             var user = _fakeUser.Generate();
             await _userManager.CreateAsync(user, "StrongP@ssword123");
@@ -55,7 +55,7 @@ namespace eCommerce.UserService.Tests.Model
         }
 
         [Fact]
-        public async Task DeleteUser_ShouldSucceed()
+        public async Task DeleteUser_WhenRequestIsValid_ShouldSuccess()
         {
             var user = _fakeUser.Generate();
             await _userManager.CreateAsync(user, "StrongP@ssword123");
@@ -66,7 +66,7 @@ namespace eCommerce.UserService.Tests.Model
         }
 
         [Fact]
-        public async Task CheckPassword_ShouldReturnTrue()
+        public async Task CheckPassword_WhenRequestIsValid_ShouldSuccess()
         {
             var user = _fakeUser.Generate();
             string password = "SecureP@ss123";
@@ -76,7 +76,7 @@ namespace eCommerce.UserService.Tests.Model
         }
 
         [Fact]
-        public async Task ChangePassword_ShouldSucceed()
+        public async Task ChangePassword_WhenRequestIsValid_ShouldSuccess()
         {
             var user = _fakeUser.Generate();
             string oldPassword = "OldP@ss123";
@@ -89,7 +89,7 @@ namespace eCommerce.UserService.Tests.Model
         }
 
         [Fact]
-        public async Task CreateUser_WithDuplicateUsername_ShouldFail()
+        public async Task CreateUser_WhenDuplicateUsername_ShouldFail()
         {
             var user1 = _fakeUser.Generate();
             var user2 = new User
@@ -106,7 +106,7 @@ namespace eCommerce.UserService.Tests.Model
         }
 
         [Fact]
-        public async Task CreateUser_WithDuplicateEmail_ShouldFail()
+        public async Task CreateUser_WhenDuplicateEmail_ShouldFail()
         {
             var user1 = _fakeUser.Generate();
             var user2 = new User
@@ -121,7 +121,5 @@ namespace eCommerce.UserService.Tests.Model
             Assert.False(result.Succeeded);
             Assert.Contains(result.Errors, e => e.Code == "DuplicateEmail");
         }
-
-
     }
 }
