@@ -44,9 +44,19 @@ message ChangeEmailResponse {
     repeated string errors = 2;
 }
 
+message RoleRequest {
+  string id = 1;
+  string role = 2;
+}
+
+message RoleResponse {
+  bool has_role = 1;
+}
+
 service AuthService {
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
   rpc Login (LoginRequest) returns (LoginResponse);
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
   rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse);
+  rpc CheckUserRole (RoleRequest) returns (RoleResponse);
 }

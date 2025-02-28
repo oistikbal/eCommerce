@@ -33,25 +33,6 @@ if (string.IsNullOrEmpty(secretKey) || string.IsNullOrEmpty(issuer) || string.Is
 
 builder.Services.AddSingleton(new JwtHelper(secretKey, issuer, audience));
 
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    }).AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = issuer,
-            ValidAudience = audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-        };
-    });
-
 builder.Services.AddGrpc();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
@@ -64,8 +45,6 @@ var localizationOptions = new RequestLocalizationOptions()
     .AddSupportedUICultures(supportedCultures);
 
 app.UseRequestLocalization(localizationOptions);
-app.UseAuthentication();
-app.UseAuthorization();
 app.MapGrpcService<AuthService>();
 app.MapGrpcService<UserService>();
 

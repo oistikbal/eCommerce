@@ -54,7 +54,6 @@ namespace eCommerce.UserService.Services.V1
             return new LoginResponse { Success = true, Token = token };
         }
 
-        [Authorize]
         public override async Task<ChangePasswordResponse> ChangePassword(ChangePasswordRequest request, ServerCallContext context)
         {
             var token = context.RequestHeaders.GetValue("Authorization")?.Replace("Bearer ", "");
@@ -98,7 +97,6 @@ namespace eCommerce.UserService.Services.V1
             return new ChangePasswordResponse { Success = true };
         }
 
-        [Authorize]
         public override async Task<ChangeEmailResponse> ChangeEmail(ChangeEmailRequest request, ServerCallContext context)
         {
             var token = context.RequestHeaders.GetValue("Authorization")?.Replace("Bearer ", "");
@@ -117,14 +115,12 @@ namespace eCommerce.UserService.Services.V1
                 return new ChangeEmailResponse { Success = false, Errors = { _localizer["UserNotFound"] } };
             }
 
-            // Verify password before changing email
             var passwordCheck = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!passwordCheck)
             {
                 return new ChangeEmailResponse { Success = false, Errors = { _localizer["InvalidPassword"] } };
             }
 
-            // Change email
             var result = await _userManager.SetEmailAsync(user, request.NewEmail);
             if (!result.Succeeded)
             {
@@ -139,6 +135,20 @@ namespace eCommerce.UserService.Services.V1
             }
 
             return new ChangeEmailResponse { Success = true };
+        }
+
+        public override async Task<RoleResponse> CheckUserRole(RoleRequest request, ServerCallContext context)
+        {
+            var user = await _userManager.FindByIdAsync(request.Id);
+
+            if (user == null)
+            {
+                return new RoleResponse { HasRole = false };
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return new RoleResponse { HasRole = roles.Contains(request.Role) };
         }
     }
 }

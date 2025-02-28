@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\eCommerce.UserService\eCommerce.UserService.csproj" />
+	<ProjectReference Include="..\..\eCommerce.Gateway\eCommerce.Gateway.csproj" />
   </ItemGroup>
 
 </Project>
