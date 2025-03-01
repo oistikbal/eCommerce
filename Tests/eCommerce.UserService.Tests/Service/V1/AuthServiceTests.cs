@@ -2,6 +2,7 @@
 using eCommerce.UserService.Protos.V1;
 using Grpc.Core;
 using Grpc.Core.Testing;
+using Grpc.Net.Client;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace eCommerce.UserService.Tests.Service.V1
@@ -13,8 +14,13 @@ namespace eCommerce.UserService.Tests.Service.V1
 
         public AuthServiceTests(UserServiceFixture factory)
         {
-            var scope = factory.Services.CreateScope();
-            _service = scope.ServiceProvider.GetRequiredService<Services.V1.AuthService>();
+            var client = factory.CreateClient();
+            var channel = GrpcChannel.ForAddress(factory.Server.BaseAddress, new GrpcChannelOptions
+            {
+                HttpClient = client
+            });
+
+            _service = factory.Services.CreateScope().ServiceProvider.GetRequiredService<Services.V1.AuthService>();
 
             _registerUserFaker = new Faker<RegisterUserRequest>()
                 .RuleFor(u => u.Username, f => f.Internet.UserName())
