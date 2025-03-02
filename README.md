@@ -5,7 +5,6 @@
 ![CI/CD](https://github.com/oistikbal/eCommerce/actions/workflows/dotnet.yml/badge.svg)
 
 ![Coverage](https://img.shields.io/endpoint?url=https://oistikbal.github.io/eCommerce/coverage.json)
-[View Report](https://oistikbal.github.io/eCommerce/index.html)
 [View Coverage Report](https://oistikbal.github.io/eCommerce/index.html)
 
 </div>

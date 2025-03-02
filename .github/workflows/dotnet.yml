@@ -1,62 +1,61 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
 name: .NET
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ main ]
 
 jobs:
-  build:
-
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    # Build and Test
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: '9.0.x'
+
+    # Restore dependencies
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build
       run: dotnet build --no-restore --configuration Release
+
     - name: Test with Coverage
-      run: dotnet test --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/
+      run: |
+        # Ensure TestResults directory exists
+        mkdir -p ./TestResults
+        # Run tests (adjust path to your test project if needed, e.g., eCommerce.Tests/eCommerce.Tests.csproj)
+        dotnet test --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.cobertura.xml
+        # Debug: List files to confirm output
+        ls -la ./TestResults/
 
-
-    ## Coverage, Badges, Pages
     - name: Install ReportGenerator
       run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
     - name: Generate HTML coverage report
       run: reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./CoverageReport -reporttypes:Html
 
-    - name: Upload coverage XML report
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-xml-report
-        path: ./TestResults/coverage.cobertura.xml
+    - name: Install xmllint
+      run: sudo apt-get install -y libxml2-utils
 
-    - name: Deploy to GitHub Pages
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./CoverageReport
-
-    - name: Extract Coverage Percentage
+    - name: Extract Coverage Percentage and Create JSON
       run: |
-        # Install xmllint (for parsing XML)
-        sudo apt-get install -y libxml2-utils
         # Extract line-rate from cobertura XML and convert to percentage
         COVERAGE=$(xmllint --xpath "number(//coverage/@line-rate)*100" ./TestResults/coverage.cobertura.xml | awk '{printf "%.0f", $1}')
+        # Determine color based on coverage
+        if [ "$COVERAGE" -ge 90 ]; then COLOR="brightgreen"
+        elif [ "$COVERAGE" -ge 75 ]; then COLOR="green"
+        elif [ "$COVERAGE" -ge 50 ]; then COLOR="yellow"
+        else COLOR="red"; fi
         # Create JSON for Shields.io
-        echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"green\"}" > coverage.json
-    - name: Deploy Coverage JSON and HTML
+        echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"${COLOR}\"}" > coverage.json
+
+    - name: Deploy to GitHub Pages
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
