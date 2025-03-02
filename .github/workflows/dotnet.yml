@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Build and Test
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -23,11 +24,45 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet build --no-restore --configuration Release
+    - name: Test with Coverage
+      run: dotnet test --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/
 
-    - name: Upload code coverage to Codecov
-      uses: codecov/codecov-action@v2
+
+    ## Coverage, Badges, Pages
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+    - name: Generate HTML coverage report
+      run: reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./CoverageReport -reporttypes:Html
+
+    - name: Upload coverage XML report
+      uses: actions/upload-artifact@v4
       with:
-        file: ./TestResults/**/coverage.cobertura.xml
+        name: coverage-xml-report
+        path: ./TestResults/coverage.cobertura.xml
+
+    - name: Deploy to GitHub Pages
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./CoverageReport
+
+    - name: Extract Coverage Percentage
+      run: |
+        # Install xmllint (for parsing XML)
+        sudo apt-get install -y libxml2-utils
+        # Extract line-rate from cobertura XML and convert to percentage
+        COVERAGE=$(xmllint --xpath "number(//coverage/@line-rate)*100" ./TestResults/coverage.cobertura.xml | awk '{printf "%.0f", $1}')
+        # Create JSON for Shields.io
+        echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"green\"}" > coverage.json
+    - name: Deploy Coverage JSON and HTML
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        keep_files: false
+        include_files: |
+          CoverageReport/*
+          coverage.json
