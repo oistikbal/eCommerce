@@ -25,4 +25,9 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal --collect:"Code Coverage"
+
+    - name: Upload code coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        file: ./TestResults/**/coverage.cobertura.xml
