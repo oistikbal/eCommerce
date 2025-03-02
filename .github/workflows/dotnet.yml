@@ -1,4 +1,4 @@
-name: .NET Build and Test with Coverage
+name: .NET
 
 on:
   push:
@@ -30,10 +30,7 @@ jobs:
         # Ensure root-level TestResults directory exists
         mkdir -p ./TestResults
         # Run tests, forcing coverage output to root TestResults
-        dotnet test --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../TestResults/coverage.cobertura.xml --logger "console;verbosity=detailed"
-        # Debug: List files to confirm output
-        echo "Contents of TestResults after test run:"
-        ls -la ./TestResults/
+        dotnet test --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput="/home/runner/work/eCommerce/eCommerce/TestResults/coverage.cobertura.xml"
 
     - name: Install ReportGenerator
       run: dotnet tool install -g dotnet-reportgenerator-globaltool
