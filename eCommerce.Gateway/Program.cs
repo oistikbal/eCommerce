@@ -7,6 +7,15 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Configure(builder.Configuration.GetSection("Kestrel"));
+    serverOptions.ConfigureEndpointDefaults(options =>
+    {
+        options.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+    });
+});
+
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
@@ -66,4 +75,16 @@ var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapReverseProxy();
+
+if (app.Environment.IsDevelopment())
+{
+    // Skip HTTPS requirement in development
+    app.UseHsts();
+}
+else
+{
+    // Force HTTPS in production
+    app.UseHttpsRedirection();
+}
+
 app.Run();
