@@ -10,11 +10,11 @@ using Testcontainers.PostgreSql;
 
 namespace eCommerce.UserService.Tests
 {
-    public class UserServiceFixture : WebApplicationFactory<Program>, IAsyncLifetime
+    public class UserServiceFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         private readonly PostgreSqlContainer _dbContainer;
 
-        public UserServiceFixture()
+        public UserServiceFactory()
         {
             _dbContainer = new PostgreSqlBuilder()
                 .WithDatabase("testdb")

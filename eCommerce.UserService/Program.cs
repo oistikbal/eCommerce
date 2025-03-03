@@ -1,3 +1,4 @@
+using eCommerce.Shared;
 using eCommerce.UserService.Data;
 using eCommerce.UserService.Data.Models;
 using eCommerce.UserService.Services;

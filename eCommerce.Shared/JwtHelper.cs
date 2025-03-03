@@ -1,10 +1,10 @@
-﻿using eCommerce.UserService.Data.Models;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace eCommerce.UserService.Services
+namespace eCommerce.Shared
 {
     public class JwtHelper
     {
@@ -12,7 +12,6 @@ namespace eCommerce.UserService.Services
         private readonly string _issuer;
         private readonly string _audience;
 
-        // Constructor accepts settings from configuration
         public JwtHelper(string secretKey, string issuer, string audience)
         {
             _secretKey = secretKey;
@@ -21,7 +20,7 @@ namespace eCommerce.UserService.Services
         }
 
 
-        public string GenerateToken(User user)
+        public string GenerateToken(IdentityUser user)
         {
             var claims = new[]
             {

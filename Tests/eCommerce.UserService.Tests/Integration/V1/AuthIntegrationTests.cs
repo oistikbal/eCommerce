@@ -6,12 +6,12 @@ using Newtonsoft.Json.Linq;
 
 namespace eCommerce.UserService.Tests.Integration.V1
 {
-    public class AuthIntegrationTests : IClassFixture<UserServiceFixture>
+    public class AuthIntegrationTests : IClassFixture<UserServiceFactory>
     {
         private readonly GrpcChannel _channel;
         private readonly Faker<RegisterUserRequest> _registerUserFaker;
 
-        public AuthIntegrationTests(UserServiceFixture factory)
+        public AuthIntegrationTests(UserServiceFactory factory)
         {
             var client = factory.CreateClient();
             _channel = GrpcChannel.ForAddress(factory.Server.BaseAddress, new GrpcChannelOptions

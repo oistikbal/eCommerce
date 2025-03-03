@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace eCommerce.UserService.Tests.Service.V1
 {
-    public class AuthServiceTests : IClassFixture<UserServiceFixture>
+    public class AuthServiceTests : IClassFixture<UserServiceFactory>
     {
         private readonly Services.V1.AuthService _service;
         private readonly Faker<RegisterUserRequest> _registerUserFaker;
 
-        public AuthServiceTests(UserServiceFixture factory)
+        public AuthServiceTests(UserServiceFactory factory)
         {
             var client = factory.CreateClient();
             var channel = GrpcChannel.ForAddress(factory.Server.BaseAddress, new GrpcChannelOptions

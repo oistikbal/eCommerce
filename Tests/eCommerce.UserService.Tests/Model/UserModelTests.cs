@@ -7,13 +7,13 @@ using eCommerce.UserService.Protos.V1;
 
 namespace eCommerce.UserService.Tests.Model
 {
-    public class UserModelTests : IClassFixture<UserServiceFixture>
+    public class UserModelTests : IClassFixture<UserServiceFactory>
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<User> _userManager;
         private readonly Faker<User> _fakeUser;
 
-        public UserModelTests(UserServiceFixture fixture)
+        public UserModelTests(UserServiceFactory fixture)
         {
             var scope = fixture.Services.CreateScope();
             _userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();

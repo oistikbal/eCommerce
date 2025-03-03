@@ -32,7 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\eCommerce.UserService\eCommerce.UserService.csproj" />
-	<ProjectReference Include="..\..\eCommerce.Gateway\eCommerce.Gateway.csproj" />
+	<ProjectReference Include="..\eCommerce.Gateway.Tests\eCommerce.Gateway.Tests.csproj" />
   </ItemGroup>
 
 </Project>

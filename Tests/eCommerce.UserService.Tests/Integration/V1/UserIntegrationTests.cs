@@ -3,11 +3,11 @@ using Grpc.Net.Client;
 
 namespace eCommerce.UserService.Tests.Integration.V1
 {
-    public class UserIntegrationTests : IClassFixture<UserServiceFixture>
+    public class UserIntegrationTests : IClassFixture<UserServiceFactory>
     {
         private readonly GrpcChannel _channel;
 
-        public UserIntegrationTests(UserServiceFixture factory)
+        public UserIntegrationTests(UserServiceFactory factory)
         {
             var client = factory.CreateClient();
             _channel = GrpcChannel.ForAddress(factory.Server.BaseAddress, new GrpcChannelOptions

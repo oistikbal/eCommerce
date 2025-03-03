@@ -30,12 +30,11 @@
   </ItemGroup>
 	
  <ItemGroup>
-    <Protobuf Include="Protos\V1\userservice.proto" GrpcServices="Both" />
-    <Protobuf Include="Protos\V1\authservice.proto" GrpcServices="Both" />
+   <Folder Include="Migrations\" />
  </ItemGroup>
 	
  <ItemGroup>
-   <Folder Include="Migrations\" />
+   <ProjectReference Include="..\eCommerce.Shared\eCommerce.Shared.csproj" />
  </ItemGroup>
 
 </Project>
