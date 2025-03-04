@@ -3,7 +3,9 @@ using eCommerce.Gateway.Middleware;
 using eCommerce.UserService.Protos.V1;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,16 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
         options.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
     });
 });
+
+
+builder.Services.AddHealthChecks()
+    .AddUrlGroup(new Uri("https://localhost:5000/health"), name: "eCommerce.UserService");
+
+builder.Services.AddHealthChecksUI(setupSettings: setup =>
+{
+    setup.AddHealthCheckEndpoint("eCommerce.Gateway", "https://localhost:3000/health");
+    setup.AddHealthCheckEndpoint("eCommerce.UserService", "https://localhost:5000/health");
+}).AddInMemoryStorage();
 
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
@@ -75,6 +87,37 @@ var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapReverseProxy();
+app.UseHealthChecks("/health", new HealthCheckOptions
+{
+
+    ResponseWriter = async (context, report) =>
+    {
+        var result = new
+        {
+            status = report.Status.ToString(),
+            checks = report.Entries.Select(entry => new
+            {
+                name = entry.Key,
+                status = entry.Value.Status.ToString(),
+                description = entry.Value.Description
+            })
+        };
+
+        context.Response.ContentType = "application/json";
+
+        await context.Response.WriteAsync(JsonConvert.SerializeObject(result));
+    }
+});
+app.UseHealthChecksUI(options =>
+{
+    options.PageTitle = "eCommerce";
+    options.UIPath = "/health-ui";
+    options.AddCustomStylesheet("healthui.css");
+});
+
+app.MapHealthChecks("/health");
+
+
 
 if (app.Environment.IsDevelopment())
 {

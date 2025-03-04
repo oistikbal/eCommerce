@@ -1,12 +1,15 @@
 using eCommerce.Shared;
 using eCommerce.UserService.Data;
 using eCommerce.UserService.Data.Models;
-using eCommerce.UserService.Services;
 using eCommerce.UserService.Services.V1;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHealthChecks().AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
@@ -55,6 +58,30 @@ var localizationOptions = new RequestLocalizationOptions()
 app.UseRequestLocalization(localizationOptions);
 app.MapGrpcService<AuthService>();
 app.MapGrpcService<UserService>();
+app.UseHealthChecks("/health", new HealthCheckOptions
+{
+    // This will ensure the response is in JSON format.
+    ResponseWriter = async (context, report) =>
+    {
+        var result = new
+        {
+            status = report.Status.ToString(),
+            checks = report.Entries.Select(entry => new
+            {
+                name = entry.Key,
+                status = entry.Value.Status.ToString(),
+                description = entry.Value.Description
+            })
+        };
+
+        // Set the response content type to application/json
+        context.Response.ContentType = "application/json";
+
+        // Write the JSON response
+        await context.Response.WriteAsync(JsonConvert.SerializeObject(result));
+    }
+});
+app.MapHealthChecks("/health");
 
 app.Run();
 

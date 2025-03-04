@@ -10,15 +10,6 @@ services:
     ports:
       - "5432:5432"
   
-  ecommerce_gateway:
-    build:
-      context: .
-      dockerfile: ./eCommerce.Gateway/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "3000:8080"
-  
   ecommerce_userservice:
     build:
       context: .
@@ -28,6 +19,19 @@ services:
       - DB_CONNECTION_STRING=Host=db;Port=5432;Database=eCommerce-UserService;Username=postgres;Password=postgres123
     depends_on:
       - db
+
+  ecommerce_gateway:
+    build:
+      context: .
+      dockerfile: ./eCommerce.Gateway/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ecommerce_userservice
+  
+
 
 volumes:
   postgres_data:
