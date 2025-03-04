@@ -82,7 +82,7 @@ app.UseHealthChecks("/health", new HealthCheckOptions
     }
 });
 app.MapHealthChecks("/health");
-
+app.UseHttpsRedirection();
 app.Run();
 
 public partial class Program { }

@@ -19,8 +19,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 });
 
 
-builder.Services.AddHealthChecks()
-    .AddUrlGroup(new Uri("https://localhost:5000/health"), name: "eCommerce.UserService");
+builder.Services.AddHealthChecks();
 
 builder.Services.AddHealthChecksUI(setupSettings: setup =>
 {
@@ -33,7 +32,7 @@ builder.Services.AddReverseProxy()
 
 builder.Services.AddGrpcClient<AuthService.AuthServiceClient>(o =>
 {
-    o.Address = new Uri("https://localhost:5001");
+    o.Address = new Uri("https://localhost:5000");
 });
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -114,20 +113,7 @@ app.UseHealthChecksUI(options =>
     options.UIPath = "/health-ui";
     options.AddCustomStylesheet("healthui.css");
 });
-
 app.MapHealthChecks("/health");
 
-
-
-if (app.Environment.IsDevelopment())
-{
-    // Skip HTTPS requirement in development
-    app.UseHsts();
-}
-else
-{
-    // Force HTTPS in production
-    app.UseHttpsRedirection();
-}
-
+app.UseHttpsRedirection();
 app.Run();
