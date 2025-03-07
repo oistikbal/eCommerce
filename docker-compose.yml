@@ -20,6 +20,16 @@ services:
     depends_on:
       - db
 
+  ecommerce_productservice:
+    build:
+      context: .
+      dockerfile: ./eCommerce.ProductService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DB_CONNECTION_STRING=Host=db;Port=5432;Database=eCommerce-ProductService;Username=postgres;Password=postgres123
+    depends_on:
+      - db
+
   ecommerce_gateway:
     build:
       context: .
