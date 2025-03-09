@@ -42,7 +42,7 @@ jobs:
       run: |
         echo "Checking for coverage file before report generation:"
         ls -la ./TestResults/
-        reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./CoverageReport -reporttypes:Html -classfilters ${{ env.COVERAGE_EXCLUDE }}
+        reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./CoverageReport -reporttypes:Html -classfilters "-classfilters=${{ env.COVERAGE_EXCLUDE }}"
 
     - name: Install xmllint
       run: sudo apt-get install -y libxml2-utils
