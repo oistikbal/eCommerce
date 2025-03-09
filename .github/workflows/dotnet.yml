@@ -41,7 +41,7 @@ jobs:
         done
     
     - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+      run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
     - name: Generate merged coverage report
       run: |
@@ -50,7 +50,7 @@ jobs:
         
         if [ -n "$COVERAGE_FILES" ]; then
           echo "Using coverage files: $COVERAGE_FILES"
-          reportgenerator -reports:"$COVERAGE_FILES" -targetdir:./CoverageReport -reporttypes:Html;Badges;MarkdownSummary -classfilters:"-eCommerce.ProductService.Protos.V1*;-eCommerce.UserService.Protos.V1*;-eCommerce.ProductService.Migrations*;-eCommerce.UserService.Migrations*" -title:"eCommerce"
+          reportgenerator -reports:"$COVERAGE_FILES" -targetdir:./CoverageReport -reporttypes:Html;MarkdownSummary;Badges -classfilters:"-eCommerce.ProductService.Protos.V1*;-eCommerce.UserService.Protos.V1*;-eCommerce.ProductService.Migrations*;-eCommerce.UserService.Migrations*" -title:"eCommerce"
           
           # Create README.md for GitHub Pages
           cp ./CoverageReport/Summary.md ./CoverageReport/README.md
