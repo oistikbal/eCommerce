@@ -37,6 +37,9 @@ jobs:
           dotnet test $PROJECT --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput="./TestResults/$PROJECT_NAME.coverage.cobertura.xml" /p:MergeWith="./TestResults/$PROJECT_NAME.coverage.json"
         done
     
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
     - name: Generate merged coverage report
       run: |
         # Get all coverage files from anywhere in the repository
