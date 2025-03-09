@@ -18,52 +18,28 @@ jobs:
       with:
         dotnet-version: '9.0.x'
     
-    # Restore dependencies
     - name: Restore dependencies
       run: dotnet restore
     
     - name: Build
       run: dotnet build --no-restore --configuration Release
     
-    - name: Install Coverlet tool
-      run: dotnet tool install --global coverlet.console
-    
-    - name: Test with Coverage (Separate Files)
+    - name: Test with Coverage
       run: |
-        # Create a directory for all coverage results
+        # Ensure root-level TestResults directory exists
         mkdir -p ./TestResults
-        
-        # Run tests with unique coverage outputs for each project
-        TEST_PROJECTS=$(find . -name "*.Tests.csproj" -o -name "*Tests.csproj")
-        for PROJECT in $TEST_PROJECTS; do
-          PROJECT_NAME=$(basename $PROJECT .csproj)
-          echo "Running tests for $PROJECT_NAME"
-          dotnet test $PROJECT --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput="./TestResults/$PROJECT_NAME.coverage.cobertura.xml" /p:MergeWith="./TestResults/$PROJECT_NAME.coverage.json"
-        done
-        
-        # List all generated coverage files
-        echo "Generated coverage files:"
-        ls -la ./TestResults/
+        # Run tests, forcing coverage output to root TestResults
+        dotnet test --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput="./coverage.cobertura.xml"
     
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-    
-    - name: Generate merged coverage report
-      run: |
-        # Get all coverage files
-        COVERAGE_FILES=$(find ./TestResults -name "*.cobertura.xml" | tr '\n' ';')
-        
-        if [ -n "$COVERAGE_FILES" ]; then
-          echo "Using coverage files: $COVERAGE_FILES"
-          reportgenerator -reports:"$COVERAGE_FILES" -targetdir:./CoverageReport -reporttypes:Html;Badges;MarkdownSummary -classfilters:"-eCommerce.ProductService.Protos.V1*;-eCommerce.UserService.Protos.V1*;-eCommerce.ProductService.Migrations*;-eCommerce.UserService.Migrations*" -title:"eCommerce"
-          
-          # Create README.md for GitHub Pages
-          cp ./CoverageReport/Summary.md ./CoverageReport/README.md
-        else
-          echo "No coverage files found. Creating empty report directory."
-          mkdir -p ./CoverageReport
-          echo "# No Coverage Data Available" > ./CoverageReport/README.md
-        fi
+    - name: ReportGenerator
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.4.4
+      with:
+        reports: ./TestResults/coverage.cobertura.xml
+        targetdir: ./CoverageReport
+        reporttypes: Html;Badges
+        assemblyfilters: +eCommerce.UserService;+eCommerce.ProductService
+        classfilters: -eCommerce.ProductService.Protos.V1;-eCommerce.UserService.Protos.V1;-eCommerce.ProductService.Migrations;-eCommerce.UserService.Migrations
+        title: eCommerce
     
     - name: Deploy to GitHub Pages
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
