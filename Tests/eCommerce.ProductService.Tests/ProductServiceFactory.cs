@@ -15,7 +15,7 @@ using Testcontainers.PostgreSql;
 
 namespace eCommerce.ProductService.Tests
 {
-    class ProductServiceFactory : WebApplicationFactory<Program>, IAsyncLifetime
+    public class ProductServiceFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         private readonly PostgreSqlContainer _dbContainer;
 
