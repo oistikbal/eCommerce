@@ -1,11 +1,13 @@
-<h1 style="  text-align: center;">eCommerce</h1>
+<h1 align="center">
+  eCommerce
+</h1>
 
-<div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-
-[![.NET](https://github.com/oistikbal/eCommerce/actions/workflows/dotnet.yml/badge.svg?branch=master)](https://github.com/oistikbal/eCommerce/actions/workflows/dotnet.yml)
-
-[![Coverage](https://img.shields.io/endpoint?url=https://oistikbal.github.io/eCommerce/coverage.json)](https://oistikbal.github.io/eCommerce/)
-
+<div align="center">
+  <img src="https://github.com/oistikbal/eCommerce/actions/workflows/dotnet.yml/badge.svg?" alt="Status">
+    <img src="https://oistikbal.github.io/eCommerce/badge_linecoverage.svg" alt="Status">
+    <img src="https://oistikbal.github.io/eCommerce/badge_branchcoverage.svg" alt="Branch">
+    <img src="https://oistikbal.github.io/eCommerce/badge_methodcoverage.svg" alt="Method">
+    <img src="https://oistikbal.github.io/eCommerce/badge_fullmethodcoverage.svg" alt="Full Method">
 </div>
 
 ---
