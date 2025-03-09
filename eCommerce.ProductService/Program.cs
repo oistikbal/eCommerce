@@ -52,3 +52,5 @@ app.UseHttpsRedirection();
 app.MapHealthChecks("/health");
 app.Run();
 
+public partial class Program { }
+
