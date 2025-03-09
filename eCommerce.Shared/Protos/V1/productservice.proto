@@ -1,0 +1,22 @@
+﻿syntax = "proto3";
+
+package eCommerce.ProductService.v1;
+option csharp_namespace = "eCommerce.ProductService.Protos.V1";
+
+message CreateProductRequest
+{
+    string name = 1;
+    string description = 2;
+    double price = 3;
+    int32 stock = 4;
+}
+
+message CreateProductResponse
+{
+    bool success = 1;
+    repeated string errors = 2;
+}
+
+service ProductService {
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+}
