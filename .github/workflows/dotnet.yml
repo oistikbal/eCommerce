@@ -9,59 +9,39 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v4
-
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-
+    
     # Restore dependencies
     - name: Restore dependencies
       run: dotnet restore
-
+    
     - name: Build
       run: dotnet build --no-restore --configuration Release
-
+    
     - name: Test with Coverage
       run: |
         # Ensure root-level TestResults directory exists
         mkdir -p ./TestResults
         # Run tests, forcing coverage output to root TestResults
-        dotnet test --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput="/home/runner/work/eCommerce/eCommerce/TestResults/coverage.cobertura.xml"
-
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-
-    - name: Generate HTML coverage report
-      run: |
-        echo "Checking for coverage file before report generation:"
-        ls -la ./TestResults/
-        reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./CoverageReport -reporttypes:Html -classfilters:"-eCommerce.ProductService.Protos.V1*;-eCommerce.UserService.Protos.V1*;-eCommerce.UserService.Migrations*;-eCommerce.ProductService.Migrations*"
-
-    - name: Install xmllint
-      run: sudo apt-get install -y libxml2-utils
-
-    - name: Extract Coverage Percentage and Create JSON
-      run: |
-        echo "Coverage file contents (if exists):"
-        cat ./TestResults/coverage.cobertura.xml || echo "No coverage file found"
-        # Extract line-rate or set default if file is missing
-        if [ -f ./TestResults/coverage.cobertura.xml ]; then
-          COVERAGE=$(xmllint --xpath "number(//coverage/@line-rate)*100" ./TestResults/coverage.cobertura.xml | awk '{printf "%.0f", $1}')
-        else
-          COVERAGE=0
-        fi
-        # Determine color based on coverage
-        if [ "$COVERAGE" -ge 90 ]; then COLOR="brightgreen"
-        elif [ "$COVERAGE" -ge 75 ]; then COLOR="green"
-        elif [ "$COVERAGE" -ge 50 ]; then COLOR="yellow"
-        else COLOR="red"; fi
-        # Create JSON for Shields.io
-        echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"${COLOR}\"}" > ./CoverageReport/coverage.json
-
+        dotnet test --no-build --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput="./TestResults/coverage.cobertura.xml"
+    
+    - name: ReportGenerator
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.4.4
+      with:
+        reports: ./TestResults/coverage.cobertura.xml
+        targetdir: ./CoverageReport
+        reporttypes: Html;Badges
+        assemblyfilters: +eCommerce.UserService;+eCommerce.ProductService
+        classfilters: -eCommerce.ProductService.Protos.V1;-eCommerce.UserService.Protos.V1;-eCommerce.ProductService.Migrations;-eCommerce.UserService.Migrations
+        title: eCommerce
+    
     - name: Deploy to GitHub Pages
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       uses: peaceiris/actions-gh-pages@v3
