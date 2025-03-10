@@ -9,6 +9,17 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
   
   ecommerce_userservice:
     build:
@@ -27,8 +38,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - DB_CONNECTION_STRING=Host=db;Port=5432;Database=eCommerce-ProductService;Username=postgres;Password=postgres123
+      - RABBITMQ_HOST=rabbitmq
     depends_on:
       - db
+      - rabbitmq
 
   ecommerce_gateway:
     build:
