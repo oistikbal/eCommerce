@@ -1,13 +1,23 @@
 using eCommerce.ProductService.Data;
+using eCommerce.ProductService.Services.V1;
+using eCommerce.Shared;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddGrpc();
 builder.Services.AddHealthChecks();
 
 builder.Services.AddHealthChecks().AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+builder.Services.AddSingleton<RabbitMQProducer>(sp => {
+    var producer = new RabbitMQProducer();
+    // Connect immediately or lazily when needed
+    producer.ConnectAsync("localhost").GetAwaiter().GetResult();
+    return producer;
+});
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
@@ -48,6 +58,7 @@ app.UseHealthChecks("/health", new HealthCheckOptions
     }
 });
 
+app.MapGrpcService<ProductService>();
 app.UseHttpsRedirection();
 app.MapHealthChecks("/health");
 app.Run();
