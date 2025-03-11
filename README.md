@@ -10,7 +10,7 @@
     <img src="https://oistikbal.github.io/eCommerce/badge_fullmethodcoverage.svg" alt="Full Method">
 </div>
 
-<p align="cener">
+<p align="center">
 This is an eCommerce project built with .NET 9.0 using a microservices architecture.
 </p>
 
@@ -40,13 +40,6 @@ This is an eCommerce project built with .NET 9.0 using a microservices architect
    ```bash
    dotnet restore
    ```
-
-**Install dependencies:**
-   Ensure that you have the .NET 9.0 SDK installed. Run the following command:
-   ```bash
-   dotnet restore
-   ```
-
 **Database setup:**
    Make sure PostgreSQL is running.
    Run migrations:
